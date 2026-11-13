@@ -23,4 +23,14 @@ Illuminating UV Gel SPF 50, Renew & Resurfacing Night Cream).
 ## Ads
 | # | Ad | Format | Status |
 |---|---|---|---|
-| 01 | Partners abroad: recruiting distributors and resellers outside the Philippines | 9:16 Reel, ~18s, VO + music + SFX | Storyboard v1, waiting for notes |
+| 01 | Partners abroad: recruiting distributors and resellers internationally | 9:16 Reel, 25s, English VO + music + SFX | v1 render, waiting for notes |
+
+## Ad 01 · Partners abroad
+- `storyboard.html/.png` — approved storyboard. `ad.html` — the animation (all beat times in the `B` block at the top).
+- Decisions: English VO; CTA "Message our page to apply" → m.me/kabogerabeautyofficial; "international" (no named
+  countries beyond the Philippines and Hong Kong, where shops exist today); distributor portraits approved for use.
+- Audio (`audio/`): VO by ElevenLabs (Belle B – Premium Ad Narrator, take 1, `vo-lines.json` places each line);
+  music "Sleeping In My Head (Instrumental Version)" by Siine and SFX from Epidemic Sound (licence must cover the
+  client's channels); `build_audio.py` mixes to -14 LUFS.
+- Render: `node tools/render.mjs video ad.html "out/<name>.mp4" --fps 25 --scale 1 --audio "audio/Kabogera partners abroad - mix.wav" --root ../..`
+- Stills for review: `node tools/render.mjs stills ad.html out/stills 1.5 4.6 … --root ../..` then `python3 tools/sheet916.py out/stills out/sheet.jpg`.

@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Kabogera · Partners abroad</title>
+<style>
+  @font-face { font-family: Serif; src: url("../../brand/fonts/PlayfairDisplay-latin.woff2"); font-weight: 400 900; }
+  @font-face { font-family: Sans; src: url("../../brand/fonts/DMSans-latin.woff2"); font-weight: 100 1000; }
+  html,body{margin:0;background:#000;height:100%} body{display:flex;align-items:center;justify-content:center}
+  canvas{height:min(100vh,calc(100vw*16/9));aspect-ratio:9/16;display:block}
+</style></head><body><canvas id="c"></canvas>
+<script>
+// Kabogera Beauty 美 · "Partners abroad" · 9:16 · page contract: #c, renderAt(t), TOTAL, ready, EVENTS, ?t=, ?scale=
+// ---------- every beat lives here: re-timing is a one-line change ----------
+const B = {   // timed to the voiceover (VO line starts: 0.9 · 3.0 · 8.1 · 13.85 · 17.6 · 21.9, see audio/vo-lines.json)
+  s1: 0.0,  ring: [0.25, 1.35], logo: [0.75, 1.75], sweep1: [1.7, 2.5],
+  t1: [2.55, 3.25],                       // logo ring grows -> lilac product set
+  s2: 2.55, h2: 3.35, prod0: 3.15, prodGap: 0.13, sub2: 4.3,
+  t2: [7.3, 8.0],                         // serum cap grows -> plum globe
+  s3: 7.3,  h3: 8.15, pinsHome: 9.2, route: [9.5, 10.3], pinsAway: 11.6, pinGap: 0.16, sub3: 12.3,
+  t3: [13.1, 13.8],                       // an empty pin grows -> the "You?" circle
+  s4: 13.1, h4: 13.95, sub4: 14.8,
+  t4: [16.6, 17.3],                       // "You?" circle stretches -> offer card
+  s5: 17.3, h5: 17.45, card: 17.7, pts: 18.25, ptGap: 0.42,
+  t5: [20.4, 21.1],                       // card shrinks -> message pill, plum floods
+  s6: 20.4, logo6: 20.9, tag6: 21.55, type6: [22.0, 23.1], foot6: 23.0, sweep6: [23.7, 24.7],
+  END: 25.2,
+};
+const W = 1080, H = 1920, q = new URLSearchParams(location.search), SCALE = parseFloat(q.get('scale') || '1');
+const C = { plum: '#281139', plumDeep: '#150a20', violet: '#482466', mauve: '#76508e', lilac: '#efe7f6', cream: '#faf8f5', ink: '#302637', gold: '#c9a45c', goldHi: '#f3d58f' };
+const cv = document.getElementById('c'); cv.width = W * SCALE; cv.height = H * SCALE; const ctx = cv.getContext('2d');
+const clamp01 = v => Math.max(0, Math.min(1, v)), lerp = (a, b, k) => a + (b - a) * k, prog = (t, a, b) => clamp01((t - a) / (b - a));
+const outCubic = k => 1 - Math.pow(1 - clamp01(k), 3), outQuint = k => 1 - Math.pow(1 - clamp01(k), 5), outExpo = k => (k = clamp01(k)) >= 1 ? 1 : 1 - Math.pow(2, -10 * k);
+const inOutCubic = k => { k = clamp01(k); return k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; };
+const inOutSine = k => -(Math.cos(Math.PI * clamp01(k)) - 1) / 2;
+const TAU = Math.PI * 2, D2R = Math.PI / 180;
+
+// ---------- assets ----------
+const A = '../../brand/assets/', IM = {};
+const files = { logo: 'kabogera-logo-cutout-512.png', soap: 'perfect-bar-soap.jpeg', ess: 'multi-action-essence.jpeg', ser: 'ultimate-serum.jpeg', uv: 'illuminating-uv-gel.jpeg', cream: 'night-cream.jpeg',
+  d1: 'distributor-rein.jpeg', d2: 'distributor-icel.jpeg', d3: 'distributor-geneziel.jpeg', d4: 'distributor-arvin-jessa.jpeg', d5: 'distributor-coach-yeng.jpeg', d6: 'distributor-shaira.jpeg', d7: 'distributor-rowena.jpeg', d8: 'distributor-manilyn.jpeg' };
+const loadImg = (k, f) => new Promise(r => { const i = new Image(); i.onload = () => { IM[k] = i; r(); }; i.onerror = () => r(); i.src = A + f; });
+
+// ---------- helpers ----------
+function cover(c, img, x, y, w, h, fx = 0.5, fy = 0.5, zoom = 1) {   // object-fit: cover into a rect, focal point fx/fy
+  if (!img) return; const s = Math.max(w / img.width, h / img.height) * zoom, iw = img.width * s, ih = img.height * s;
+  c.drawImage(img, x + (w - iw) * fx, y + (h - ih) * fy, iw, ih);
+}
+function rr(c, x, y, w, h, r) { c.beginPath(); c.roundRect(x, y, w, h, Math.max(0, Math.min(r, w / 2, h / 2))); }
+function shadow(c, col, blur, dy) { c.shadowColor = col; c.shadowBlur = blur * SCALE; c.shadowOffsetX = 0; c.shadowOffsetY = dy * SCALE; }
+function noShadow(c) { c.shadowColor = 'transparent'; c.shadowBlur = 0; c.shadowOffsetY = 0; }
+// word-by-word: each word fades up from blurred to sharp with a small rise; optional exit the same way
+function words(c, lines, t, t0, o = {}) {
+  const { x = W / 2, y = 300, size = 78, lh = 1.14, weight = 600, family = 'Serif', fill = C.violet, stagger = 0.075, dur = 0.55, track = -0.02, exit = null, grad = null, align = 'center' } = o;
+  c.save(); c.font = `${weight} ${size}px ${family}`; c.letterSpacing = (size * track) + 'px'; c.textBaseline = 'alphabetic';
+  let n = 0; const sp = c.measureText(' ').width;
+  lines.forEach((ln, li) => {
+    const ws = ln.split(' '), wd = ws.map(w => c.measureText(w).width), tot = wd.reduce((a, b) => a + b, 0) + sp * (ws.length - 1);
+    let xx = align === 'center' ? x - tot / 2 : x; const yy = y + li * size * lh;
+    ws.forEach((w, i) => {
+      let e = outCubic(prog(t, t0 + n * stagger, t0 + n * stagger + dur));
+      if (exit != null) e *= 1 - inOutSine(prog(t, exit + n * 0.03, exit + n * 0.03 + 0.4));
+      if (e > 0.002) {
+        c.save(); c.globalAlpha *= e; c.filter = e < 0.999 ? `blur(${((1 - e) * 14 * SCALE).toFixed(2)}px)` : 'none';
+        if (grad) { const g = c.createLinearGradient(0, yy - size * 0.75, 0, yy + size * 0.1); grad.forEach(([s, col]) => g.addColorStop(s, col)); c.fillStyle = g; } else c.fillStyle = fill;
+        c.fillText(w, xx, yy + (1 - e) * size * 0.32); c.restore();
+      }
+      xx += wd[i] + sp; n++;
+    });
+  });
+  c.restore();
+}
+const inkGrad = col => [[0, col], [0.55, col], [1, mix(col, '#9a8aa8', 0.55)]];          // solid top, softer lower half
+function mix(a, b, k) { const p = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)); const A_ = p(a), B_ = p(b); return '#' + A_.map((v, i) => Math.round(lerp(v, B_[i], k)).toString(16).padStart(2, '0')).join(''); }
+function tracked(c, str, x, y, size, col, alpha = 1, track = 0.28, weight = 500) {
+  c.save(); c.globalAlpha *= alpha; c.font = `${weight} ${size}px Sans`; c.letterSpacing = (size * track) + 'px'; c.textAlign = 'center'; c.fillStyle = col;
+  c.fillText(str, x + size * track / 2, y); c.restore();
+}
+function fadeUp(t, t0, dur = 0.6) { return outCubic(prog(t, t0, t0 + dur)); }
+function drawLogo(c, cx, cy, size, alpha = 1, blur = 0) {   // centred by the logo's visible bounding box (alpha cut-out of the app icon)
+  if (!IM.logo || alpha <= 0) return; const s = size / 512;
+  c.save(); c.globalAlpha = alpha; if (blur > 0.05) c.filter = `blur(${(blur * SCALE).toFixed(2)}px)`;
+  c.drawImage(IM.logo, cx - 256 * s, cy - 266 * s, 512 * s, 512 * s); c.restore();
+}
+const LOGO_RING = { dx: 0, dy: -44, r: 156 };   // ring centre / radius in logo px, relative to the bbox centre (256,266)
+const SWB = document.createElement('canvas');
+function sweepLogo(c, cx, cy, size, k) {      // a soft diagonal light sweep that only lands on the logo itself (masked by its alpha)
+  if (k <= 0 || k >= 1 || !IM.logo) return; const s = size / 512, px = Math.ceil(size * SCALE); SWB.width = SWB.height = px; const b = SWB.getContext('2d');
+  b.clearRect(0, 0, px, px); b.drawImage(IM.logo, 0, 0, px, px); b.globalCompositeOperation = 'source-in';
+  const x = lerp(-0.4, 1.4, inOutSine(k)) * px, g = b.createLinearGradient(x - px * 0.18, 0, x + px * 0.18, px * 0.3);
+  g.addColorStop(0, 'rgba(255,240,210,0)'); g.addColorStop(0.5, 'rgba(255,240,210,0.85)'); g.addColorStop(1, 'rgba(255,240,210,0)'); b.fillStyle = g; b.fillRect(0, 0, px, px); b.globalCompositeOperation = 'source-over';
+  c.save(); c.globalCompositeOperation = 'screen'; c.drawImage(SWB, cx - 256 * s, cy - 266 * s, size, size); c.restore();
+}
+function twoTone(c, a, b, y, size) {   // one centred tracked line in two colours
+  c.save(); c.font = `500 ${size}px Sans`; c.letterSpacing = (size * 0.22) + 'px'; const wa = c.measureText(a[0]).width, wb = c.measureText(b[0]).width; let x = W / 2 - (wa + wb) / 2;
+  c.globalAlpha = a[2]; c.fillStyle = a[1]; c.fillText(a[0], x, y); c.font = `600 ${size}px Sans`; c.globalAlpha = b[2]; c.fillStyle = b[1]; c.fillText(b[0], x + wa, y); c.restore();
+}
+function plumField(c, lt, cx = W / 2, cy = H * 0.47) {
+  const g = c.createRadialGradient(cx, cy, 0, cx, cy, 1250); g.addColorStop(0, '#4b2270'); g.addColorStop(0.5, C.plum); g.addColorStop(1, C.plumDeep);
+  c.fillStyle = g; c.fillRect(-200, -200, W + 400, H + 400); dust(c, lt, 'rgba(243,213,143,', 0.32);
+}
+function dust(c, lt, rgba, amt) {               // slow drifting gold specks: something is always moving
+  for (let i = 0; i < 46; i++) {
+    const r1 = Math.sin(i * 91.7) * 43758.5 % 1, r2 = Math.sin(i * 12.9) * 15731.7 % 1, r3 = Math.sin(i * 47.3) * 9631.1 % 1;
+    const x = ((Math.abs(r1) * W * 1.2 + lt * (8 + Math.abs(r3) * 14)) % (W * 1.2)) - W * 0.1, y = ((Math.abs(r2) * H * 1.1 - lt * (18 + Math.abs(r3) * 20)) % (H * 1.1) + H * 1.1) % (H * 1.1) - H * 0.05;
+    const tw = 0.5 + 0.5 * Math.sin(lt * 1.3 + i), s = 1.2 + Math.abs(r3) * 2.6;
+    c.fillStyle = rgba + (amt * tw).toFixed(3) + ')'; c.beginPath(); c.arc(x, y, s, 0, TAU); c.fill();
+  }
+}
+function lightField(c, lt, base = C.lilac, glow = '#ffffff') {
+  c.fillStyle = base; c.fillRect(-200, -200, W + 400, H + 400);
+  const g = c.createRadialGradient(W / 2, H * 0.42, 0, W / 2, H * 0.42, 1100); g.addColorStop(0, glow); g.addColorStop(1, 'rgba(255,255,255,0)');
+  c.globalAlpha = 0.75; c.fillStyle = g; c.fillRect(-200, -200, W + 400, H + 400); c.globalAlpha = 1; dust(c, lt, 'rgba(201,164,92,', 0.22);
+}
+
+// ---------- shots: draw(c, lt) in shot coordinates; cam(lt) = zoom; out(lt) = the shape that grows into the next shot ----------
+// Shot 1 · the crown lands
+const LOGO1 = 700;
+const S1 = {
+  bg: C.plum, cam: lt => 1 + 0.045 * lt,
+  draw(c, lt) {
+    const t = B.s1 + lt; plumField(c, lt);
+    const cx = W / 2, cy = H / 2, s = LOGO1 / 512, rx = cx + LOGO_RING.dx * s, ry = cy + LOGO_RING.dy * s, R = LOGO_RING.r * s;
+    const kr = inOutCubic(prog(t, ...B.ring)), kl = outCubic(prog(t, ...B.logo));
+    // the point of light that starts the ring
+    const p0 = fadeUp(t, 0, 0.35) * (1 - kl);
+    if (p0 > 0) { const a = -Math.PI / 2 + kr * TAU, px = rx + Math.cos(a) * R, py = ry + Math.sin(a) * R, g = c.createRadialGradient(px, py, 0, px, py, 90);
+      g.addColorStop(0, `rgba(255,244,220,${p0})`); g.addColorStop(0.15, `rgba(243,213,143,${0.6 * p0})`); g.addColorStop(1, 'rgba(243,213,143,0)'); c.fillStyle = g; c.fillRect(px - 90, py - 90, 180, 180); }
+    if (kr > 0) { c.save(); c.strokeStyle = C.goldHi; c.lineWidth = 5; c.globalAlpha = 1 - kl * 0.85; shadow(c, 'rgba(243,213,143,0.8)', 24, 0);
+      c.beginPath(); c.arc(rx, ry, R, -Math.PI / 2, -Math.PI / 2 + kr * TAU); c.stroke(); c.restore(); }
+    drawLogo(c, cx, cy, LOGO1, kl, (1 - kl) * 16);
+    sweepLogo(c, cx, cy, LOGO1, prog(t, ...B.sweep1));
+  },
+  out(lt) { const s = LOGO1 / 512; return { x: W / 2 + LOGO_RING.dx * s, y: H / 2 + LOGO_RING.dy * s, r: LOGO_RING.r * s }; },
+};
+// Shot 2 · the Perfect Series
+const PROD = [   // key, width, height, focal x/y, image zoom; centre card is the serum
+  ['soap', 152, 300, 0.5, 0.55, 1.3], ['ess', 152, 400, 0.47, 0.5, 1.15], ['ser', 214, 520, 0.5, 0.42, 1.05], ['uv', 152, 400, 0.5, 0.45, 1.15], ['cream', 152, 300, 0.55, 0.55, 1.35]];
+const P_BASE = 1330, P_GAP = 18;
+function prodLayout(lt) {
+  const tot = PROD.reduce((a, p) => a + p[1], 0) + P_GAP * 4, drift = 26 - 11 * lt; let x = W / 2 - tot / 2 + drift;
+  return PROD.map(p => { const r = { k: p[0], x, y: P_BASE - p[2], w: p[1], h: p[2], fx: p[3], fy: p[4], z: p[5] }; x += p[1] + P_GAP; return r; });
+}
+const S2 = {
+  bg: C.lilac, cam: lt => 1 + 0.03 * lt,
+  draw(c, lt) {
+    const t = B.s2 + lt; lightField(c, lt);
+    words(c, ['Formulated in Japan.'], t, B.h2, { y: 470, size: 84, grad: inkGrad(C.violet) });
+    const order = [2, 1, 3, 0, 4];   // serum first, then outward
+    prodLayout(lt).forEach((p, i) => {
+      const e = outCubic(prog(t, B.prod0 + order.indexOf(i) * B.prodGap, B.prod0 + order.indexOf(i) * B.prodGap + 0.8)); if (e <= 0) return;
+      c.save(); c.globalAlpha = e; c.translate(0, (1 - e) * 90); if (e < 0.999) c.filter = `blur(${((1 - e) * 10 * SCALE).toFixed(2)}px)`;
+      shadow(c, 'rgba(72,36,102,0.28)', 40, 22); rr(c, p.x, p.y, p.w, p.h, 26); c.fillStyle = '#fff'; c.fill(); noShadow(c);
+      c.save(); rr(c, p.x, p.y, p.w, p.h, 26); c.clip(); cover(c, IM[p.k], p.x, p.y, p.w, p.h, p.fx, p.fy, p.z); c.restore();
+      rr(c, p.x + 1, p.y + 1, p.w - 2, p.h - 2, 25); c.strokeStyle = 'rgba(201,164,92,0.7)'; c.lineWidth = 2; c.stroke(); c.restore();
+    });
+    // floor reflection line
+    const fl = fadeUp(t, B.prod0 + 0.3, 0.8); c.save(); c.globalAlpha = fl * 0.5; const g = c.createLinearGradient(140, 0, W - 140, 0);
+    g.addColorStop(0, 'rgba(201,164,92,0)'); g.addColorStop(0.5, 'rgba(201,164,92,1)'); g.addColorStop(1, 'rgba(201,164,92,0)'); c.fillStyle = g; c.fillRect(140, P_BASE + 26, W - 280, 2); c.restore();
+    tracked(c, 'THE PERFECT SERIES  ·  5 ESSENTIALS', W / 2, 1520, 26, C.mauve, fadeUp(t, B.sub2));
+    tracked(c, 'CLEANSE · EXFOLIATE · TREAT · PROTECT · RENEW', W / 2, 1572, 21, C.gold, fadeUp(t, B.sub2 + 0.25), 0.18);
+  },
+  out(lt) { const p = prodLayout(lt)[2]; return { x: p.x + p.w / 2, y: p.y + p.h * 0.33, r: 54 }; },   // the serum's gold cap
+};
+// Shot 3 · beyond borders (orthographic globe)
+const GLOBE = { cx: W / 2, cy: 1010, R: 340, tilt: 14 * D2R };
+const HOME = [['Philippines', 12.9, 121.8], ['Hong Kong', 22.3, 114.2]];
+const AWAY = [['Tokyo', 35.7, 139.7], ['Singapore', 1.35, 103.8], ['Seoul', 37.5, 127.0], ['Sydney', -33.9, 151.2], ['Dubai', 25.2, 55.3], ['Bangkok', 13.7, 100.5]];
+const lon0 = lt => (134 - 5 * lt) * D2R;
+function proj(lat, lon, lt) {
+  const f = lat * D2R, l = lon * D2R - lon0(lt), t0 = GLOBE.tilt, cz = Math.sin(t0) * Math.sin(f) + Math.cos(t0) * Math.cos(f) * Math.cos(l);
+  return { x: GLOBE.cx + GLOBE.R * Math.cos(f) * Math.sin(l), y: GLOBE.cy - GLOBE.R * (Math.cos(t0) * Math.sin(f) - Math.sin(t0) * Math.cos(f) * Math.cos(l)), z: cz };
+}
+function pin(c, p, k, filled, lt, i) {
+  if (k <= 0 || p.z < 0.05) return; const a = clamp01(p.z * 3) * k;
+  c.save(); c.globalAlpha = a;
+  if (filled) { shadow(c, 'rgba(243,213,143,0.9)', 26, 0); c.fillStyle = C.goldHi; c.beginPath(); c.arc(p.x, p.y, 13 * outCubic(k), 0, TAU); c.fill(); noShadow(c);
+    c.strokeStyle = 'rgba(243,213,143,0.5)'; c.lineWidth = 2; c.beginPath(); c.arc(p.x, p.y, 24 * outCubic(k), 0, TAU); c.stroke(); }
+  else { const pulse = (lt * 0.8 + i * 0.37) % 1; c.strokeStyle = C.goldHi; c.lineWidth = 3; c.beginPath(); c.arc(p.x, p.y, 11 * outCubic(k), 0, TAU); c.stroke();
+    c.globalAlpha = a * (1 - pulse) * 0.8; c.lineWidth = 2; c.beginPath(); c.arc(p.x, p.y, 11 + pulse * 34, 0, TAU); c.stroke(); }
+  c.restore();
+}
+function arcRoute(c, a, b, k, dashed) {
+  if (k <= 0 || a.z < 0 || b.z < 0) return; const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, dx = mx - GLOBE.cx, dy = my - GLOBE.cy, d = Math.hypot(dx, dy) || 1, lift = Math.hypot(b.x - a.x, b.y - a.y) * 0.32;
+  const qx = mx + dx / d * lift, qy = my + dy / d * lift, N = 40, n = Math.max(1, Math.round(N * k));
+  c.save(); c.strokeStyle = 'rgba(243,213,143,0.85)'; c.lineWidth = 3; if (dashed) c.setLineDash([8, 9]); c.beginPath();
+  for (let i = 0; i <= n; i++) { const u = i / N, x = (1 - u) * (1 - u) * a.x + 2 * (1 - u) * u * qx + u * u * b.x, y = (1 - u) * (1 - u) * a.y + 2 * (1 - u) * u * qy + u * u * b.y; i ? c.lineTo(x, y) : c.moveTo(x, y); }
+  c.stroke(); c.restore();
+}
+const S3 = {
+  bg: C.plum, cam: lt => 1 + 0.035 * lt,
+  draw(c, lt) {
+    const t = B.s3 + lt; plumField(c, lt, W / 2, GLOBE.cy);
+    const { cx, cy, R } = GLOBE, ge = outCubic(prog(t, B.s3 + 0.2, B.s3 + 1.2));
+    c.save(); c.globalAlpha = ge;
+    const g = c.createRadialGradient(cx - R * 0.35, cy - R * 0.4, 0, cx, cy, R); g.addColorStop(0, 'rgba(239,231,246,0.16)'); g.addColorStop(1, 'rgba(239,231,246,0.03)');
+    c.fillStyle = g; c.beginPath(); c.arc(cx, cy, R, 0, TAU); c.fill();
+    c.strokeStyle = 'rgba(201,164,92,0.9)'; c.lineWidth = 2.5; c.stroke();
+    // graticule as fine gold dots, brighter on the near side
+    for (let lat = -80; lat <= 80; lat += 4) for (let lon = -180; lon < 180; lon += 4) {
+      if (lat % 20 !== 0 && lon % 20 !== 0) continue; const p = proj(lat, lon, lt); if (p.z <= 0) continue;
+      c.fillStyle = `rgba(201,164,92,${(0.12 + 0.5 * p.z).toFixed(3)})`; c.fillRect(p.x - 1.6, p.y - 1.6, 3.2, 3.2);
+    }
+    c.restore();
+    const home = HOME.map(h => proj(h[1], h[2], lt)), away = AWAY.map(h => proj(h[1], h[2], lt));
+    arcRoute(c, home[0], home[1], inOutCubic(prog(t, ...B.route)), false);
+    away.forEach((p, i) => arcRoute(c, home[0], p, inOutCubic(prog(t, B.pinsAway + i * B.pinGap, B.pinsAway + i * B.pinGap + 0.7)), true));
+    home.forEach((p, i) => pin(c, p, outCubic(prog(t, B.pinsHome + i * 0.25, B.pinsHome + i * 0.25 + 0.5)), true, lt, i));
+    away.forEach((p, i) => pin(c, p, outCubic(prog(t, B.pinsAway + 0.5 + i * B.pinGap, B.pinsAway + 0.9 + i * B.pinGap)), false, lt, i));
+    words(c, ['Loved at home.', 'Now going international.'], t, B.h3, { y: 330, size: 74, fill: '#f3e9ff', grad: [[0, '#fbf5ff'], [0.55, '#f3e9ff'], [1, '#b9a3cf']] });
+    twoTone(c, ['PHILIPPINES  ·  HONG KONG  ·  ', C.gold, fadeUp(t, B.sub3)], ['THE WORLD', '#fbf5ff', fadeUp(t, B.sub3 + 0.35)], 1560, 26);
+  },
+  out(lt) { const p = proj(AWAY[1][1], AWAY[1][2], lt); return { x: p.x, y: p.y, r: 12 }; },   // Singapore's empty pin
+};
+// Shot 4 · the family
+const GRID = { cx: W / 2, cy: 1030, r: 136, gap: 312 };
+const FAM = ['d1', 'd2', 'd3', 'd4', null, 'd5', 'd6', 'd7', 'd8'];
+const S4 = {
+  bg: C.cream, cam: lt => 1 + 0.6 * (1 - outQuint(lt / 2.4)) - 0.012 * lt,   // pulls back through the centre circle, keeps easing back
+  draw(c, lt, exitK = 0) {
+    const t = B.s4 + lt; lightField(c, lt, C.cream, '#f3ecf8');
+    FAM.forEach((k, i) => {
+      const gx = (i % 3) - 1, gy = Math.floor(i / 3) - 1, ring = Math.abs(gx) + Math.abs(gy);
+      let x = GRID.cx + gx * GRID.gap, y = GRID.cy + gy * GRID.gap;
+      if (!k) {   // the empty "You?" seat
+        if (exitK > 0) return; const a = 1;
+        c.save(); c.globalAlpha = a; c.setLineDash([14, 12]); c.lineDashOffset = -lt * 24; c.strokeStyle = C.gold; c.lineWidth = 4; c.beginPath(); c.arc(x, y, GRID.r, 0, TAU); c.stroke(); c.restore();
+        c.save(); c.globalAlpha = fadeUp(t, B.s4 + 0.9); c.font = '600 46px Serif'; c.textAlign = 'center'; c.fillStyle = C.violet; c.fillText('You?', x, y + 15); c.restore(); return;
+      }
+      const e = outCubic(prog(t, B.s4 + 0.15 + ring * 0.18 + i * 0.03, B.s4 + 1.25 + ring * 0.18 + i * 0.03));
+      const out = 1 + (1 - e) * 1.6 + exitK * 1.4; x = GRID.cx + gx * GRID.gap * out; y = GRID.cy + gy * GRID.gap * out;
+      c.save(); c.globalAlpha = e * (1 - exitK);
+      shadow(c, 'rgba(72,36,102,0.22)', 30, 14); c.beginPath(); c.arc(x, y, GRID.r, 0, TAU); c.fillStyle = '#fff'; c.fill(); noShadow(c);
+      c.save(); c.beginPath(); c.arc(x, y, GRID.r - 3, 0, TAU); c.clip(); cover(c, IM[k], x - GRID.r * 1.55, y - GRID.r * 0.72, GRID.r * 3.1, GRID.r * 3.88, 0.5, 0); c.restore();
+      c.strokeStyle = C.gold; c.lineWidth = 4; c.beginPath(); c.arc(x, y, GRID.r, 0, TAU); c.stroke(); c.restore();
+    });
+  },
+  overlay(c, lt, exitK = 0) {   // text stays put while the camera pulls back
+    const t = B.s4 + lt, ex = exitK > 0 ? B.t4[0] : null;
+    words(c, ['Join the Kabogera family.'], t, B.h4, { y: 420, size: 76, grad: inkGrad(C.violet), exit: ex });
+    tracked(c, 'OUR AUTHORIZED DISTRIBUTORS', W / 2, 1600, 25, C.mauve, fadeUp(t, B.sub4) * (1 - exitK * 3));
+  },
+};
+// Shot 5 · the offer card
+const CARD = { x: 90, y: 660, w: 900, h: 690, r: 48 };
+const PTS = ['A premium, Japan-formulated line', 'Made with an FDA-licensed,|GMP-certified partner', 'A growing community|to learn from'];
+const S5 = {
+  bg: C.cream, cam: lt => 1 + 0.03 * lt,
+  draw(c, lt, exitK = 0) {
+    const t = B.s5 + lt; lightField(c, lt, C.cream, '#efe5f7');
+    const ex = exitK > 0 ? B.t5[0] : null;
+    words(c, ['Share the glow.'], t, B.h5, { y: 470, size: 84, grad: inkGrad(C.violet), exit: ex });
+    if (exitK <= 0) cardShape(c, CARD.x, CARD.y, CARD.w, CARD.h, CARD.r, 1);
+    const ca = 1 - clamp01(exitK * 4);
+    if (ca <= 0) return; c.save(); c.globalAlpha = ca;
+    tracked(c, 'PARTNER WITH US', W / 2, CARD.y + 110, 24, C.mauve, fadeUp(t, B.card), 0.3);
+    words(c, ['Distributors & resellers,', 'worldwide.'], t, B.card + 0.1, { y: CARD.y + 205, size: 58, grad: inkGrad(C.violet), stagger: 0.06 });
+    PTS.forEach((p, i) => {
+      const t0 = B.pts + i * B.ptGap, y = CARD.y + 360 + i * 128, st = outCubic(prog(t, t0, t0 + 0.35));
+      if (st > 0) { c.save(); c.globalAlpha *= st; c.translate(CARD.x + 92, y - 12); c.scale(lerp(1.5, 1, st), lerp(1.5, 1, st)); star(c, 0, 0, 17, C.gold); c.restore(); }
+      words(c, p.split('|'), t, t0 + 0.08, { x: CARD.x + 132, y, size: 36, family: 'Sans', weight: 400, fill: C.ink, align: 'left', stagger: 0.04, dur: 0.45, track: -0.005, lh: 1.3 });
+    });
+    c.restore();
+  },
+};
+function star(c, x, y, r, col) { c.fillStyle = col; c.beginPath(); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4 - Math.PI / 2, rr_ = i % 2 ? r * 0.28 : r; c.lineTo(x + Math.cos(a) * rr_, y + Math.sin(a) * rr_); } c.closePath(); c.fill(); }
+function cardShape(c, x, y, w, h, r, a) { c.save(); c.globalAlpha = a; shadow(c, 'rgba(72,36,102,0.2)', 60, 30); rr(c, x, y, w, h, r); c.fillStyle = '#fff'; c.fill(); noShadow(c);
+  rr(c, x + 1, y + 1, w - 2, h - 2, r); c.strokeStyle = 'rgba(201,164,92,0.55)'; c.lineWidth = 2; c.stroke(); c.restore(); }
+// Shot 6 · end card (locked off, perfectly centred)
+const PILL = { x: 130, y: 1225, w: 820, h: 112, r: 56 };
+const URL_ = 'm.me/kabogerabeautyofficial';
+const S6 = {
+  bg: C.plum, cam: () => 1,
+  draw(c, lt) {
+    const t = B.s6 + lt; plumField(c, lt, W / 2, 760);
+    const kl = outCubic(prog(t, B.logo6, B.logo6 + 1.0));
+    if (kl > 0) { const fl = Math.max(0, 1 - Math.abs(t - (B.logo6 + 0.75)) / 0.45) * 0.55, g = c.createRadialGradient(W / 2, 700, 0, W / 2, 700, 520);   // glow flash as the logo lands
+      g.addColorStop(0, `rgba(243,213,143,${fl})`); g.addColorStop(1, 'rgba(243,213,143,0)'); c.fillStyle = g; c.fillRect(0, 100, W, 1200); }
+    drawLogo(c, W / 2, 700, 560, kl, (1 - kl) * 14);
+    sweepLogo(c, W / 2, 700, 560, prog(t, ...B.sweep6));
+    words(c, ['Glow beyond perfect.'], t, B.tag6, { y: 1080, size: 64, weight: 400, grad: [[0, '#fff3d6'], [0.55, '#f3d58f'], [1, '#b8904a']], stagger: 0.09 });
+    pillShape(c, PILL.x, PILL.y, PILL.w, PILL.h, PILL.r, 1);
+    const ty = fadeUp(t, B.type6[0] - 0.45, 0.4);
+    if (ty > 0) { c.save(); c.globalAlpha = ty; messengerIcon(c, PILL.x + 70, PILL.y + PILL.h / 2, 30);
+      const n = Math.round(URL_.length * prog(t, ...B.type6)), str = URL_.slice(0, n); c.font = '500 38px Sans'; c.letterSpacing = '0px'; c.fillStyle = C.ink; c.textBaseline = 'middle';
+      c.fillText(str, PILL.x + 122, PILL.y + PILL.h / 2 + 2); const cw = c.measureText(str).width, blink = (t > B.type6[1] + 0.3) ? ((t * 2) % 1 < 0.55 ? 1 : 0) : 1;
+      c.globalAlpha = ty * blink; c.fillStyle = C.violet; c.fillRect(PILL.x + 124 + cw, PILL.y + 34, 3, 46); c.restore(); }
+    words(c, ['Message our page to apply.'], t, B.type6[0] - 0.2, { y: 1450, size: 40, family: 'Sans', weight: 500, fill: '#f3e9ff', stagger: 0.06, track: -0.01 });
+    tracked(c, 'DISTRIBUTORS & RESELLERS  ·  INTERNATIONAL', W / 2, 1530, 22, C.gold, fadeUp(t, B.foot6), 0.22);
+    tracked(c, 'Approval and partner terms apply.', W / 2, 1760, 22, 'rgba(201,189,212,0.75)', fadeUp(t, B.foot6 + 0.3), 0.02, 400);
+  },
+};
+function pillShape(c, x, y, w, h, r, a) { c.save(); c.globalAlpha = a; shadow(c, 'rgba(0,0,0,0.35)', 50, 20); rr(c, x, y, w, h, r); c.fillStyle = '#fff'; c.fill(); noShadow(c); c.restore(); }
+function messengerIcon(c, x, y, r) {   // a simple speech bubble with a spark, drawn as shapes (not a third-party logo)
+  c.save(); const g = c.createLinearGradient(x - r, y + r, x + r, y - r); g.addColorStop(0, C.violet); g.addColorStop(1, '#9871a7'); c.fillStyle = g;
+  c.beginPath(); c.ellipse(x, y - 2, r, r * 0.9, 0, 0, TAU); c.fill(); c.beginPath(); c.moveTo(x - r * 0.55, y + r * 0.55); c.lineTo(x - r * 0.75, y + r * 1.0); c.lineTo(x - r * 0.1, y + r * 0.8); c.fill();
+  star(c, x, y - 2, r * 0.5, '#fff'); c.restore();
+}
+
+// ---------- compositor ----------
+const SHOTS = [S1, S2, S3, S4, S5, S6], STARTS = [B.s1, B.s2, B.s3, B.s4, B.s5, B.s6];
+const mk = () => { const c = document.createElement('canvas'); c.width = cv.width; c.height = cv.height; return c; }, BUF = [mk(), mk()];
+function camT(z) { return [z, 0, 0, z, (W / 2) * (1 - z), (H / 2) * (1 - z)]; }
+function toScreen(z, x, y) { return [W / 2 + (x - W / 2) * z, H / 2 + (y - H / 2) * z]; }
+function shotCanvas(i, lt, buf, extra) {   // render a shot (with its camera) into an offscreen buffer
+  const c = buf.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, buf.width, buf.height);
+  const z = SHOTS[i].cam(lt), [a, , , d, e, f] = camT(z); c.setTransform(a * SCALE, 0, 0, d * SCALE, e * SCALE, f * SCALE);
+  SHOTS[i].draw(c, lt, extra); c.setTransform(SCALE, 0, 0, SCALE, 0, 0); if (SHOTS[i].overlay) SHOTS[i].overlay(c, lt, extra); return buf;
+}
+function circleTransition(i, t, tr) {   // shot i's key circle squashes, then grows to fill; flooded with the next field; next shot eases in 93% -> 100%
+  const lt = t - STARTS[i], o = SHOTS[i].out(lt), z = SHOTS[i].cam(lt), [sx, sy] = toScreen(z, o.x, o.y), R0 = o.r * z;
+  const k = prog(t, ...tr), e = inOutCubic(k), squash = Math.sin(clamp01(k / 0.18) * Math.PI) * 0.08;
+  const R = k < 0.18 ? R0 * (1 - squash) : lerp(R0, Math.hypot(W, H) * 0.62, inOutCubic(prog(k, 0.18, 1)));
+  const cx = lerp(sx, W / 2, e), cy = lerp(sy, H / 2, e);
+  ctx.drawImage(shotCanvas(i, lt, BUF[0]), 0, 0);
+  ctx.save(); ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0); ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.clip();
+  ctx.fillStyle = SHOTS[i + 1].bg; ctx.fillRect(0, 0, W, H);
+  const ek = prog(k, 0.3, 1); if (ek > 0) { const nl = t - STARTS[i + 1], s = i + 1 === 3 ? 1 : lerp(0.93, 1, outCubic(ek)); ctx.globalAlpha = inOutSine(prog(k, 0.3, 0.7));
+    ctx.translate(W / 2, H / 2); ctx.scale(s, s); ctx.translate(-W / 2, -H / 2); ctx.drawImage(shotCanvas(i + 1, nl, BUF[1]), 0, 0, W, H); }
+  ctx.restore();
+  ctx.save(); ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0); ctx.globalAlpha = 1 - e; ctx.strokeStyle = C.goldHi; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.stroke(); ctx.restore();
+}
+function render(t) {
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cv.width, cv.height);
+  if (t >= B.t1[0] && t < B.t1[1]) return circleTransition(0, t, B.t1);
+  if (t >= B.t2[0] && t < B.t2[1]) return circleTransition(1, t, B.t2);
+  if (t >= B.t3[0] && t < B.t3[1]) return circleTransition(2, t, B.t3);
+  if (t >= B.t4[0] && t < B.t4[1]) {   // "You?" circle stretches into the offer card; portraits make room
+    const k = inOutCubic(prog(t, ...B.t4)), lt = t - B.s4, z = S4.cam(lt);
+    ctx.drawImage(shotCanvas(3, lt, BUF[0], Math.max(0.0001, k)), 0, 0);
+    const [cx, cy] = toScreen(z, GRID.cx, GRID.cy), r = GRID.r * z;
+    ctx.save(); ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+    cardShape(ctx, lerp(cx - r, CARD.x, k), lerp(cy - r, CARD.y, k), lerp(2 * r, CARD.w, k), lerp(2 * r, CARD.h, k), lerp(r, CARD.r, k), clamp01(k * 3));
+    ctx.restore(); return;
+  }
+  if (t >= B.t5[0] && t < B.t5[1]) {   // card shrinks into the message pill while plum floods from the centre
+    const k = prog(t, ...B.t5), e = inOutCubic(k), lt = t - B.s5, z = S5.cam(lt);
+    ctx.drawImage(shotCanvas(4, lt, BUF[0], Math.max(0.0001, k)), 0, 0);
+    ctx.save(); ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+    const fr = lerp(0, Math.hypot(W, H) * 0.62, inOutCubic(prog(k, 0.1, 1))); ctx.beginPath(); ctx.arc(W / 2, H * 0.55, fr, 0, TAU); ctx.save(); ctx.clip();
+    ctx.drawImage(shotCanvas(5, t - B.s6, BUF[1]), 0, 0, W, H); ctx.restore();
+    const [x0, y0] = toScreen(z, CARD.x, CARD.y), [x1, y1] = toScreen(z, CARD.x + CARD.w, CARD.y + CARD.h);
+    cardShape(ctx, lerp(x0, PILL.x, e), lerp(y0, PILL.y, e), lerp(x1 - x0, PILL.w, e), lerp(y1 - y0, PILL.h, e), lerp(CARD.r * z, PILL.r, e), 1);
+    ctx.restore(); return;
+  }
+  let i = 0; for (let j = 0; j < STARTS.length; j++) if (t >= STARTS[j]) i = j;
+  ctx.drawImage(shotCanvas(i, t - STARTS[i], BUF[0]), 0, 0);
+}
+
+// ---------- beats for sound sync ----------
+window.EVENTS = [
+  { name: 'ring.start', t: B.ring[0] }, { name: 'logo.land', t: B.logo[1] - 0.25 }, { name: 'sweep1', t: B.sweep1[0] },
+  { name: 't1', t: B.t1[0] + 0.12 }, ...PROD.map((p, i) => ({ name: 'prod.' + i, t: B.prod0 + i * B.prodGap + 0.25 })),
+  { name: 't2', t: B.t2[0] + 0.12 }, { name: 'pin.home.0', t: B.pinsHome + 0.15 }, { name: 'pin.home.1', t: B.pinsHome + 0.4 }, { name: 'route', t: B.route[0] },
+  ...AWAY.map((p, i) => ({ name: 'pin.away.' + i, t: B.pinsAway + 0.55 + i * B.pinGap })),
+  { name: 't3', t: B.t3[0] + 0.12 }, { name: 'family.arrive', t: B.s4 + 0.4 }, { name: 't4', t: B.t4[0] },
+  ...PTS.map((p, i) => ({ name: 'pt.' + i, t: B.pts + i * B.ptGap + 0.1 })),
+  { name: 't5', t: B.t5[0] }, { name: 'logo6.land', t: B.logo6 + 0.75 }, { name: 'type.start', t: B.type6[0] }, { name: 'type.end', t: B.type6[1] }, { name: 'sweep6', t: B.sweep6[0] },
+];
+window.TOTAL = B.END; window.renderAt = t => render(t);
+window.ready = Promise.all([...Object.entries(files).map(([k, f]) => loadImg(k, f)), document.fonts.load('600 80px Serif'), document.fonts.load('400 40px Sans'), document.fonts.load('500 40px Sans')])
+  .then(() => { if (q.has('t')) render(parseFloat(q.get('t'))); else (function tick(n) { render((n / 1000) % B.END); requestAnimationFrame(tick); })(0); return true; });
+</script></body></html>
