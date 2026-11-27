@@ -1,34 +1,35 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><link rel="stylesheet" href="brand.css"><title>Kabogera post</title><style>
-.p4 { background: var(--cream); }
-.p4 .half { position:absolute; top:0; bottom:150px; width:540px; padding:90px 0 0; text-align:center; }
-.p4 .am { left:0; background: linear-gradient(180deg, #fbf3e4 0%, #f6efe9 100%); }
-.p4 .pm { right:0; background: radial-gradient(ellipse at 50% 30%, #4b2270, #281139 70%); color:#f3e9ff; }
-.p4 .ic { font:400 54px/1 Serif; color:var(--gold); }
-.p4 .t { margin-top:14px; font:600 76px/1 Serif; letter-spacing:-1px; }
-.p4 .am .t { color:var(--violet); } .p4 .pm .t { color:#fff3dc; }
-.p4 .s { margin-top:12px; font:500 17px Sans; letter-spacing:4px; color:var(--gold); }
-.p4 .steps { margin:64px auto 0; width:440px; display:grid; gap:34px; }
-.p4 .st { display:flex; align-items:center; gap:22px; text-align:left; }
-.p4 .st .circ { width:150px; height:150px; flex:none; }
-.p4 .st b { display:block; font:600 17px Sans; letter-spacing:3px; color:var(--gold); }
-.p4 .st span { font:600 31px/1.2 Serif; }
-.p4 .am .st span { color:var(--violet); } .p4 .pm .st span { color:#f3e9ff; }
-.p4 .note { position:absolute; bottom:180px; left:0; right:0; text-align:center; }
-.p4 .note .fine { display:inline-block; background:rgba(255,255,255,.92); padding:10px 22px; border-radius:30px; color:#6c5a72; }
-</style></head><body><div class="post p4" id="post">
-  <div class="half am"><div class="ic">☀</div><div class="t">Morning</div><div class="s">FRESH · PROTECTED</div>
-    <div class="steps">
-      <div class="st"><div class="circ"><img src="../../brand/assets/perfect-bar-soap.jpeg" style="transform:scale(1.5)"></div><div><b>CLEANSE</b><span>Perfect Bar Soap</span></div></div>
-      <div class="st"><div class="circ"><img src="../../brand/assets/ultimate-serum.jpeg" style="object-position:50% 50%;transform:scale(1.5)"></div><div><b>TREAT</b><span>Ultimate Serum</span></div></div>
-      <div class="st"><div class="circ"><img src="../../brand/assets/illuminating-uv-gel.jpeg" style="transform:scale(1.5)"></div><div><b>PROTECT</b><span>Illuminating UV Gel SPF 50</span></div></div>
-    </div></div>
-  <div class="half pm"><div class="ic">☾</div><div class="t">Evening</div><div class="s">CLEANSE · RENEW</div>
-    <div class="steps">
-      <div class="st"><div class="circ"><img src="../../brand/assets/perfect-bar-soap.jpeg" style="transform:scale(1.5)"></div><div><b>CLEANSE</b><span>Perfect Bar Soap</span></div></div>
-      <div class="st"><div class="circ"><img src="../../brand/assets/multi-action-essence.jpeg" style="transform:scale(1.5)"></div><div><b>EXFOLIATE</b><span>Multi Action Essence*</span></div></div>
-      <div class="st"><div class="circ"><img src="../../brand/assets/ultimate-serum.jpeg" style="transform:scale(1.5)"></div><div><b>TREAT</b><span>Ultimate Serum</span></div></div>
-      <div class="st"><div class="circ"><img src="../../brand/assets/night-cream.jpeg" style="object-position:62% 55%;transform:scale(1.3)"></div><div><b>RENEW</b><span>Renew &amp; Resurfacing Night Cream</span></div></div>
-    </div></div>
-  <div class="note"><span class="fine">*Contains glycolic acid. Use as often as the label and your skin allow.</span></div>
-  <div class="band"><img src="../../brand/assets/kabogera-logo-cutout-512.png" alt=""><div class="sep"></div><div><div class="t1">Glow beyond perfect.</div><div class="t2">FORMULATED IN JAPAN · MESSAGE US TO ORDER</div></div></div>
+.bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.foot { position:absolute; left:0; right:0; bottom:0; height:120px; display:flex; align-items:center; justify-content:center; gap:22px; color:#f3e9ff; }
+.foot img { width:96px; height:96px; } .foot .sep { width:1px; height:56px; background:rgba(243,213,143,.4); }
+.foot .t { font:500 16px Sans; letter-spacing:3.4px; color:var(--goldhi); }
+.pill { display:inline-block; padding:12px 24px; border-radius:40px; font:500 21px Sans; }
+
+.p .half { position:absolute; left:0; right:0; height:615px; overflow:hidden; }
+.p .am { top:0; } .p .pm { top:615px; }
+.p .half img { position:absolute; width:760px; height:950px; }
+.p .am { background:#fbf3e6; } .p .pm { background:#1d0d2a; }
+.p .am img { left:390px; top:-335px; } .p .pm img { left:380px; top:-330px; }
+.p .am::after { content:""; position:absolute; top:0; bottom:0; left:380px; width:160px; background:linear-gradient(90deg, #fbf3e6, rgba(251,243,230,0)); }
+.p .pm::after { content:""; position:absolute; top:0; bottom:0; left:370px; width:160px; background:linear-gradient(90deg, #1d0d2a, rgba(29,13,42,0)); }
+.p .lab { position:absolute; z-index:2; top:80px; width:400px; }
+.p .am .lab, .p .pm .lab { left:64px; }
+.p .lab .ic { font:400 46px/1 Serif; color:var(--gold); }
+.p .lab .t { font:600 76px/1.05 Serif; letter-spacing:-1px; margin-top:6px; }
+.p .am .t { color:var(--violet); } .p .pm .t { color:#fff3dc; }
+.p .lab ol { list-style:none; margin-top:20px; display:grid; gap:10px; font:500 24px Sans; }
+.p .am ol { color:#3f2f4b; } .p .pm ol { color:#eadff2; }
+.p .lab ol b { color:var(--gold); font-weight:600; margin-right:10px; }
+
+.p .fine2 { position:absolute; z-index:3; left:0; right:0; bottom:128px; text-align:center; font:400 16px Sans; color:rgba(234,223,242,.8); }
+.p .foot { background: rgba(21,10,32,.96); height:110px; z-index:3; }
+.p .line { position:absolute; left:0; right:0; top:613px; height:4px; background:linear-gradient(90deg, transparent, var(--gold), transparent); z-index:3; }
+</style></head><body><div class="post p" id="post" style="background:#150a20">
+  <div class="half am"><img src="images/morning.png"><div class="lab"><div class="ic">☀</div><div class="t">Morning</div>
+    <ol><li><b>01</b>Perfect Bar Soap</li><li><b>02</b>Ultimate Serum</li><li><b>03</b>UV Gel SPF 50</li></ol></div></div>
+  <div class="half pm"><img src="images/evening.png"><div class="lab"><div class="ic">☾</div><div class="t">Evening</div>
+    <ol><li><b>01</b>Perfect Bar Soap</li><li><b>02</b>Multi Action Essence*</li><li><b>03</b>Ultimate Serum</li><li><b>04</b>Night Cream</li></ol></div></div>
+  <div class="line"></div>
+  <div class="fine2">*Contains glycolic acid. Use as often as the label and your skin allow.</div>
+  <div class="foot"><img src="../../brand/assets/kabogera-logo-cutout-512.png" alt=""><div class="sep"></div><div class="t">GLOW BEYOND PERFECT · MESSAGE US TO ORDER</div></div>
 </div></body></html>

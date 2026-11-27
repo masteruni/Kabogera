@@ -1,6 +1,10 @@
 # Kabogera feed posts: captions
 
+Images in `images/` were generated with GPT Image 2.6 (via Higgsfield) from the real product photos as references; all text is set in the layouts, not generated.
+
 ## 01 · Ultimate Serum
+One drop of glow. 💧✨
+
 Meet step 03 of your ritual: the Ultimate Serum. 💜
 
 Triple brightening + collagen renewal in one 15 ml bottle.
@@ -14,7 +18,7 @@ Individual results may vary. Patch test first.
 #KabogeraBeauty #UltimateSerum #GlowBeyondPerfect #ThePerfectSeries #FormulatedInJapan
 
 ## 02 · Illuminating UV Gel SPF 50
-Don't skip SPF. ☀️
+Sun's out. SPF on. ☀️😎
 
 The Illuminating UV Gel is the last step of your morning routine: daily SPF 50 protection with a lightweight gel feel.
 
@@ -25,7 +29,7 @@ Your serum works hard. Let your sunscreen protect that glow. ✨
 #KabogeraBeauty #SPF50 #IlluminatingUVGel #SunscreenEveryday #GlowBeyondPerfect
 
 ## 03 · Perfect Bar Soap ingredients
-Know your skincare: what's inside the Perfect Bar Soap? 🧼
+Know your skincare: what's inside the Perfect Bar Soap? 🧼🍈
 
 🔹 Niacinamide: supports a more even-looking skin tone
 🔹 Glycolic acid: an exfoliating AHA
@@ -61,7 +65,7 @@ Save this post for your routine! 📌 Message our page to order.
 #KabogeraBeauty #SkincareRoutine #AMPMRoutine #ThePerfectSeries #GlowBeyondPerfect
 
 ## 05 · Join the Kabogera family
-Grow with the glow. 💜
+Better together. 💜 Grow with the glow.
 
 Join our growing Kabogera family as an affiliate or reseller.
 ✦ Affiliates can earn 10% commission on qualifying purchases with their personal code

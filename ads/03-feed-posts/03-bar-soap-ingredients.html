@@ -1,26 +1,28 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><link rel="stylesheet" href="brand.css"><title>Kabogera post</title><style>
-.p3 .eyebrow { position:absolute; top:84px; left:80px; }
-.p3 .h { position:absolute; top:128px; left:76px; width:600px; font-size:80px; }
-.p3 .lede { position:absolute; top:318px; left:80px; width:540px; font:400 27px/1.45 Sans; color:#5c4a68; }
-.p3 .card { position:absolute; top:84px; right:70px; width:300px; height:380px; transform:rotate(3deg); }
-.p3 .grid { position:absolute; top:520px; left:70px; right:70px; display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-.p3 .ing { background:#fff; border-radius:24px; padding:28px 30px; border:1px solid rgba(201,164,92,.45); box-shadow:0 20px 34px -26px rgba(72,36,102,.5); }
-.p3 .ing b { display:block; font:600 32px Serif; color:var(--violet); margin-bottom:8px; }
-.p3 .ing span { font:400 23px/1.4 Sans; color:#5c4a68; }
-.p3 .ing.wide { grid-column: span 2; }
-.p3 .fine { position:absolute; top:1146px; left:80px; right:80px; }
-</style></head><body><div class="post light p3" id="post">
-  <div class="eyebrow">KNOW YOUR SKINCARE</div>
-  <div class="h">What's in your Perfect Bar Soap.</div>
-  <div class="lede">Step 01 of the ritual: a refreshing cleanse that prepares skin for the next steps.</div>
-  <div class="card"><img src="../../brand/assets/perfect-bar-soap.jpeg" style="object-position:50% 55%"></div>
-  <div class="grid">
-    <div class="ing"><b>Niacinamide</b><span>Supports a more even-looking skin tone.</span></div>
-    <div class="ing"><b>Glycolic acid</b><span>An exfoliating AHA.</span></div>
-    <div class="ing"><b>Glutathione</b><span>An antioxidant ingredient.</span></div>
-    <div class="ing"><b>Glycerin &amp; panthenol</b><span>With sodium lactate, help support skin hydration.</span></div>
-    <div class="ing wide"><b>Bearberry, licorice &amp; papaya</b><span>Botanical extracts included in the formula.</span></div>
-  </div>
+.bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.foot { position:absolute; left:0; right:0; bottom:0; height:120px; display:flex; align-items:center; justify-content:center; gap:22px; color:#f3e9ff; }
+.foot img { width:96px; height:96px; } .foot .sep { width:1px; height:56px; background:rgba(243,213,143,.4); }
+.foot .t { font:500 16px Sans; letter-spacing:3.4px; color:var(--goldhi); }
+.pill { display:inline-block; padding:12px 24px; border-radius:40px; font:500 21px Sans; }
+
+.p .txt { position:absolute; left:0; right:0; top:84px; text-align:center; }
+.p .h { font-size:82px; }
+.p .tag { position:absolute; padding:12px 20px; border-radius:18px; background:rgba(255,255,255,.93); box-shadow:0 14px 26px -16px rgba(72,36,102,.55); border:1px solid rgba(201,164,92,.5); }
+.p .tag b { display:block; font:600 25px Serif; color:var(--violet); } .p .tag span { font:400 17px Sans; color:#5c4a68; }
+.p .tag::before { content:""; position:absolute; width:12px; height:12px; border-radius:50%; background:var(--gold); border:3px solid #fff; box-shadow:0 0 0 1px var(--gold); }
+.p .t1 { left:60px; top:370px; } .p .t1::before { right:-10px; top:50%; }
+.p .t2 { right:56px; top:360px; } .p .t2::before { left:-10px; top:50%; }
+.p .t3 { right:40px; top:1000px; text-align:right; } .p .t3::before { left:-10px; top:20%; }
+.p .t4 { left:50px; top:1010px; }  .p .t4::before { right:-10px; top:30%; }
+.p .sub3 { margin-top:14px; font:500 24px Sans; color:#4a3a56; }
+.p .fine { position:absolute; left:0; right:0; bottom:110px; height:44px; line-height:44px; text-align:center; color:#f3e9ff; background:rgba(40,17,57,.85); font-size:16px; }
+.p .foot { background: linear-gradient(0deg, rgba(40,17,57,.95), rgba(40,17,57,.85)); height:110px; }
+</style></head><body><div class="post light p" id="post">
+  <img class="bg" src="images/soap-ingredients.png">
+  <div class="txt"><div class="eyebrow" style="margin-bottom:14px">KNOW YOUR SKINCARE</div><div class="h">Inside the Perfect Bar Soap.</div><div class="sub3">With niacinamide, glycolic acid, glutathione &amp; glycerin, plus botanicals:</div></div>
+  <div class="tag t1"><b>Papaya extract</b><span>A botanical in the formula</span></div>
+  <div class="tag t2"><b>Bearberry extract</b><span>A botanical in the formula</span></div>
+  <div class="tag t3"><b>Licorice extract</b><span>A botanical in the formula</span></div>
   <div class="fine">From our product label. Results depend on the complete formula and your skin. Patch test first.</div>
-  <div class="band"><img src="../../brand/assets/kabogera-logo-cutout-512.png" alt=""><div class="sep"></div><div><div class="t1">Glow beyond perfect.</div><div class="t2">FORMULATED IN JAPAN · MESSAGE US TO ORDER</div></div></div>
+  <div class="foot"><img src="../../brand/assets/kabogera-logo-cutout-512.png" alt=""><div class="sep"></div><div class="t">GLOW BEYOND PERFECT · MESSAGE US TO ORDER</div></div>
 </div></body></html>
