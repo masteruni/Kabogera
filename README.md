@@ -25,6 +25,7 @@ Illuminating UV Gel SPF 50, Renew & Resurfacing Night Cream).
 |---|---|---|---|
 | 01 | Partners abroad: recruiting distributors and resellers internationally | 9:16 Reel, 25s, English VO + music + SFX | v1 render, waiting for notes |
 | 02 | Daily ritual: the five Perfect Series steps | 4:5 feed post (1080×1350) + caption | v1, waiting for notes |
+| 03 | Five feed posts: Ultimate Serum, UV Gel SPF 50, Bar Soap ingredients, AM/PM routine, Join the family | 4:5 feed posts (1080×1350) + captions | v1, waiting for notes |
 
 ## Ad 01 · Partners abroad
 - `storyboard.html/.png` — approved storyboard. `ad.html` — the animation (all beat times in the `B` block at the top).
