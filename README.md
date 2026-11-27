@@ -24,6 +24,7 @@ Illuminating UV Gel SPF 50, Renew & Resurfacing Night Cream).
 | # | Ad | Format | Status |
 |---|---|---|---|
 | 01 | Partners abroad: recruiting distributors and resellers internationally | 9:16 Reel, 25s, English VO + music + SFX | v1 render, waiting for notes |
+| 02 | Daily ritual: the five Perfect Series steps | 4:5 feed post (1080×1350) + caption | v1, waiting for notes |
 
 ## Ad 01 · Partners abroad
 - `storyboard.html/.png` — approved storyboard. `ad.html` — the animation (all beat times in the `B` block at the top).
